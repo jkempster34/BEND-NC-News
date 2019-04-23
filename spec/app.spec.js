@@ -117,5 +117,24 @@ describe.only("/", () => {
           });
       });
     });
+    describe("/articles/:article_id", () => {
+      it("GET - status 200 - returns a single article based on article_id parameter", () => {
+        return request.get("/api/articles/1").then(({ body }) => {
+          expect(body.article).to.eql({
+            author: "butter_bridge",
+            title: "Living in the shadow of a great man",
+            article_id: 1,
+            topic: "mitch",
+            created_at: "2018-11-15T12:21:54.171Z",
+            votes: 100,
+            comment_count: "13"
+          });
+        });
+      });
+    });
   });
 });
+// TEST FOR ERRORS FOR ONES YOU HAVE DONE
+// do i need two models - DRY
+// ask about uggo routes
+// dont get sql errors any more
