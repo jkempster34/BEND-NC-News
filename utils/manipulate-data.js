@@ -1,7 +1,7 @@
 exports.timeStampToDate = (arr, dateColumn = "created_at") => {
   if (!Object.keys(arr[0]).length) return [{}];
   const result = arr.map(element => {
-    newElement = { ...element };
+    const newElement = { ...element };
     newElement[dateColumn] = new Date(newElement[dateColumn]).toISOString();
     return newElement;
   });
@@ -15,7 +15,7 @@ exports.changeNameOfKey = (
 ) => {
   if (!Object.keys(arr[0]).length) return [{}];
   const result = arr.map(element => {
-    newElement = { ...element };
+    const newElement = { ...element };
     newElement[newName] = newElement[nameOfKey];
     delete newElement[nameOfKey];
     return newElement;
