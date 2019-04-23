@@ -28,9 +28,9 @@ exports.seed = (knex, Promise) => {
     })
     .then(articleData => {
       const createdByToAuthor = changeNameOfKey(commentData);
-      const articleTimesChangedToISO = timeStampToDate(createdByToAuthor);
+      const commentTimesChangedToISO = timeStampToDate(createdByToAuthor);
       const lookupArticleId = createLookupObject(articleData);
-      const swappedKey = swapOutAKey(articleTimesChangedToISO, lookupArticleId);
+      const swappedKey = swapOutAKey(commentTimesChangedToISO, lookupArticleId);
       return knex("comments")
         .insert(swappedKey)
         .returning("*");
