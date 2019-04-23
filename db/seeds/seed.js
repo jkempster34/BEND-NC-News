@@ -36,5 +36,3 @@ exports.seed = (knex, Promise) => {
         .returning("*");
     });
 };
-
-// use promise.all?
