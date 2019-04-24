@@ -22,7 +22,6 @@ exports.fetchAllArticles = ({ username, topic, sort_by, order }) => {
 };
 
 exports.fetchArticleById = ({ article_id }) => {
-  console.log(article_id);
   return connection
     .select(
       "articles.author",
