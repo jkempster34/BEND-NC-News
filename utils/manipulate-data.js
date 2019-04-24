@@ -50,3 +50,12 @@ exports.swapOutAKey = (
   });
   return result;
 };
+
+exports.makePOSTCommentSuitable = (object, article_id) => {
+  if (!Object.keys(object).length) return {};
+  const newObject = { ...object };
+  newObject.author = newObject.username;
+  delete newObject.username;
+  newObject.article_id = article_id;
+  return newObject;
+};

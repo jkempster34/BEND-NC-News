@@ -135,36 +135,132 @@ describe.only("/", () => {
           );
         });
       });
-      it("GET - status 200 - sorts articles in default order if the 'order' query is not 'asc' or 'desc'", () => {
-        return request.get("/api/articles?sort_by=invalid").then(({ body }) => {
+      it("GET - status 200 - sorts articles in default order (desc) if the 'order' query is not 'asc' or 'desc'", () => {
+        return request.get("/api/articles?order=invalid").then(({ body }) => {
           expect(body.articles[0].created_at).to.equal(
             "2018-11-15T12:21:54.171Z"
           );
         });
       });
-    });
-    describe("/articles/:article_id", () => {
-      it("GET - status 200 - returns a single article based on article_id parameter", () => {
-        return request.get("/api/articles/1").then(({ body }) => {
-          expect(body.article).to.eql({
-            author: "butter_bridge",
-            title: "Living in the shadow of a great man",
-            article_id: 1,
-            topic: "mitch",
-            created_at: "2018-11-15T12:21:54.171Z",
-            votes: 100,
-            comment_count: "13"
+      xit("GET - status 404 - returns message 'Not a username' for the query of a username that is not in the database", () => {
+        return request
+          .get("/api/articles?username=notausername")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Username not found");
+          });
+      });
+      xit("GET - status 404 - returns message 'Not a topic' for the query of a topic that is not in the database", () => {
+        return request
+          .get("/api/articles?topic=notatopic")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Topic not found");
+          });
+      });
+      xit("GET - status 200 - returns an empty array for a username that exists but does not have any articles associated with it", () => {
+        return request
+          .get("/api/articles?username=lurker")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.equal([]);
+          });
+      });
+      describe("/articles/:article_id", () => {
+        it("GET - status 200 - returns a single article based on article_id parameter", () => {
+          return request.get("/api/articles/1").then(({ body }) => {
+            expect(body.article).to.eql({
+              author: "butter_bridge",
+              title: "Living in the shadow of a great man",
+              article_id: 1,
+              topic: "mitch",
+              created_at: "2018-11-15T12:21:54.171Z",
+              votes: 100,
+              comment_count: "13"
+            });
+          });
+        });
+        it("PATCH - status 200 - updates an article's votes when passed an object with a positive number", () => {
+          const newVotes = { inc_votes: 10 };
+          return request
+            .patch("/api/articles/1")
+            .send(newVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.article.votes).to.equal(110);
+            });
+        });
+        it("PATCH - status 200 - updates an article's votes when passed an object with a negative number", () => {
+          const newVotes = { inc_votes: -10 };
+          return request
+            .patch("/api/articles/1")
+            .send(newVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.article.votes).to.equal(90);
+            });
+        });
+        describe("/articles/:article_id/:comments", () => {
+          it("GET - status 200 - returns an array of comments for the given article_id", () => {
+            return request.get("/api/articles/1/comments").then(({ body }) => {
+              expect(body.comments.length).to.equal(13);
+            });
+          });
+          it("POST - status 200 - returns the posted comment when passed a comment object", () => {
+            const newComment = {
+              username: "rogersop",
+              body: "Hello, this is a comment"
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(newComment)
+              .expect(201)
+              .then(({ body }) => {
+                expect(body.comment).to.contain.keys(
+                  "comment_id",
+                  "author",
+                  "body",
+                  "votes",
+                  "article_id",
+                  "created_at"
+                );
+                expect(body.comment.comment_id).to.equal(19);
+                expect(body.comment.author).to.equal("rogersop");
+                expect(body.comment.body).to.equal("Hello, this is a comment");
+                expect(body.comment.votes).to.equal(0);
+                expect(body.comment.article_id).to.equal(1);
+              });
           });
         });
       });
-      // it('PATCH - status 200 - updates an article when passed an object in a valid form', () => {
-      //   const
-      //   return request.patch("/api/articles/1").then
-      // });
+      describe("/comments/:comment_id", () => {
+        it("PATCH - status 200 - increments the comment's vote property when passed an object", () => {
+          const newVotes = { inc_votes: 1 };
+          return request
+            .patch("/api/comments/1")
+            .send(newVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment.body).to.equal(
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+              );
+              expect(body.comment.votes).to.equal(17);
+            });
+        });
+        it("PATCH - status 200 - decreases the comment's vote property when passed an object", () => {
+          const newVotes = { inc_votes: -1 };
+          return request
+            .patch("/api/comments/1")
+            .send(newVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment.body).to.equal(
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+              );
+              expect(body.comment.votes).to.equal(15);
+            });
+        });
+      });
     });
   });
 });
-// test for route invalid
-// Sort by default if query invalid
-// TEST for method not found?
-// dont get sql errors any more
