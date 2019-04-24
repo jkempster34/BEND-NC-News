@@ -11,7 +11,16 @@ const request = supertest(app);
 describe.only("/", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-
+  describe("/*** route-not found", () => {
+    it('* - status 404 - returns message "route not found"', () => {
+      return request
+        .get("/api/notaroute")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Route Not Found");
+        });
+    });
+  });
   describe("/api", () => {
     it("GET - status:200", () => {
       return request
@@ -103,18 +112,35 @@ describe.only("/", () => {
         });
       });
       it("GET - status 200 - sorts the articles (desc) by other valid columns", () => {
-        return request.get("/api/articles?sort_by=votes").then(({ body }) => {
-          expect(body.articles[0].votes).to.equal(100);
-          expect(body.articles[0].comment_count).to.equal("13");
-        });
+        return request
+          .get("/api/articles?sort_by=comment_count")
+          .then(({ body }) => {
+            expect(body.articles[1].comment_count).to.equal("2");
+            expect(body.articles[0].comment_count).to.equal("13");
+          });
       });
       it("GET - status 200 - can specify order of sort as ascending", () => {
         return request
           .get("/api/articles?sort_by=votes&&order=asc")
           .then(({ body }) => {
             expect(body.articles[0].votes).to.equal(0);
+            expect(body.articles[11].votes).to.equal(100);
             expect(body.articles[0].comment_count).to.equal("0");
           });
+      });
+      it("GET - status 200 - sorts articles by default (date) in default order (desc) if the sort_by query is a column that doesn't exist", () => {
+        return request.get("/api/articles?sort_by=invalid").then(({ body }) => {
+          expect(body.articles[0].created_at).to.equal(
+            "2018-11-15T12:21:54.171Z"
+          );
+        });
+      });
+      it("GET - status 200 - sorts articles in default order if the 'order' query is not 'asc' or 'desc'", () => {
+        return request.get("/api/articles?sort_by=invalid").then(({ body }) => {
+          expect(body.articles[0].created_at).to.equal(
+            "2018-11-15T12:21:54.171Z"
+          );
+        });
       });
     });
     describe("/articles/:article_id", () => {
@@ -131,10 +157,14 @@ describe.only("/", () => {
           });
         });
       });
+      // it('PATCH - status 200 - updates an article when passed an object in a valid form', () => {
+      //   const
+      //   return request.patch("/api/articles/1").then
+      // });
     });
   });
 });
-// TEST FOR ERRORS FOR ONES YOU HAVE DONE
-// do i need two models - DRY
-// ask about uggo routes
+// test for route invalid
+// Sort by default if query invalid
+// TEST for method not found?
 // dont get sql errors any more
