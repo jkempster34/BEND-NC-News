@@ -3,7 +3,8 @@ const {
   timeStampToDate,
   changeNameOfKey,
   createLookupObject,
-  swapOutAKey
+  swapOutAKey,
+  makePOSTCommentSuitable
 } = require("../utils/manipulate-data");
 
 describe("timeStampToDate()", () => {
@@ -174,5 +175,35 @@ describe("swapOutAKey()", () => {
     expect(actual).to.eql(output);
     expect(actual).to.not.equal(shops);
     expect(actual).to.not.equal(owners);
+  });
+});
+describe("makePOSTCommentSuitable()", () => {
+  it("Does not mutate original object", () => {
+    const input = {};
+    const actual = makePOSTCommentSuitable(input);
+    const output = {};
+    expect(actual).to.eql(output);
+    expect(input).to.not.equal(actual);
+  });
+  it("Changes 'username' key to 'author'", () => {
+    const input = {
+      username: "rogersop",
+      body: "Hello, this is a comment"
+    };
+    const actual = makePOSTCommentSuitable(input);
+    expect(actual).to.contain.keys("author", "body");
+  });
+  it("Returns an object with an article_id key which is passed as a parameter", () => {
+    const input = {
+      username: "rogersop",
+      body: "Hello, this is a comment"
+    };
+    const article_id = 1;
+    const actual = makePOSTCommentSuitable(input, article_id);
+    expect(actual).to.eql({
+      author: "rogersop",
+      body: "Hello, this is a comment",
+      article_id: 1
+    });
   });
 });
