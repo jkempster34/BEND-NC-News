@@ -67,16 +67,22 @@ exports.fetchArticleById = ({ article_id }) => {
     .then(([result]) => result);
 };
 
-exports.updateAnArticleById = ({ inc_votes }, { article_id }) => {
-  if (inc_votes === undefined) {
+exports.updateAnArticleById = (body, { article_id }) => {
+  if (body.inc_votes === undefined || Object.keys(body).length > 1) {
     return Promise.reject({
       status: 400,
       msg: "Not valid patch body"
     });
   }
+  if (!Number.isInteger(body.inc_votes)) {
+    return Promise.reject({
+      status: 400,
+      msg: "inc_votes must be an integer"
+    });
+  }
   return connection("articles")
     .where("article_id", "=", article_id)
-    .increment("votes", inc_votes)
+    .increment("votes", body.inc_votes)
     .returning("*")
     .then(([result]) => result);
 };
@@ -89,6 +95,13 @@ exports.fetchCommentsByArticleById = ({ article_id }) => {
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
+  if (
+    !Object.keys(body).includes("username") ||
+    !Object.keys(body).includes("body") ||
+    typeof body.username !== "string" ||
+    typeof body.body !== "string"
+  )
+    return Promise.reject({ status: 400, msg: "Not valid POST body" });
   const correctlyFormattedData = makePOSTCommentSuitable(body, article_id);
   return connection("comments")
     .insert(correctlyFormattedData)
