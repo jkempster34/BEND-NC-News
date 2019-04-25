@@ -233,15 +233,31 @@ describe.only("/", () => {
               expect(body.article.votes).to.equal(90);
             });
         });
-        ///////
-        ///////
-        //////
-        it("GET - status 400 - returns bad request if article_id is invalid", () => {
+        it("GET - status 400 - returns 'Invalid Id' if article_id is invalid", () => {
           return request
-            .get("/api/articles/1/")
+            .get("/api/articles/dog/")
             .expect(400)
             .then(({ body }) => {
-              expect(body.msg).to.equal("Bad Request");
+              expect(body.msg).to.equal("Invalid Id");
+            });
+        });
+        it("GET - status 404 - returns 'Not found' if article_id is valid but not found", () => {
+          return request
+            .get("/api/articles/99999/")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Article_id not found");
+            });
+        });
+        /////////////
+        it("PATCH - status 400 - returns 'Not valid patch body' if there is no 'inc_votes' key on patch body", () => {
+          const malformedVotes = { NOT_inc_votes: 10 };
+          return request
+            .patch("/api/articles/1")
+            .send(malformedVotes)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Not valid patch body");
             });
         });
         describe("/articles/:article_id/comments", () => {
