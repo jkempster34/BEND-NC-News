@@ -8,45 +8,6 @@ const {
   insertNewCommentByArticleId
 } = require("../models/articles-model");
 
-// exports.getAllArticles = (req, res, next) => {
-//   const validColumns = [
-//     "username",
-//     "author",
-//     "title",
-//     "article_id",
-//     "topic",
-//     "created_at",
-//     "votes",
-//     "comment_count"
-//   ];
-//   if (!validColumns.includes(req.query.sort_by)) {
-//     req.query.sort_by = undefined;
-//   }
-//   doesUsernameExist(req.query)
-//     .then(result => {
-//       console.log("************1");
-//       if (result.length === 0 && req.query.username !== undefined) {
-// return Promise.reject({ status: 404, msg: "Username not found" });
-//       } else return result;
-//     })
-//     .then(() => {
-//       console.log("************2");
-//       return doesTopicExist(req.query);
-//     })
-//     .then(result => {
-//       console.log("************3");
-//       if (result.length === 0 && req.query.topic !== undefined) {
-//         return Promise.reject({ status: 404, msg: "Topic not found" });
-//       } else return result;
-//     })
-//     .then(() => {
-//       console.log("************4");
-//       return fetchAllArticles(req.query);
-//     })
-
-//     .catch(next);
-// };
-
 exports.getAllArticles = (req, res, next) => {
   const validColumns = [
     "username",
@@ -61,9 +22,17 @@ exports.getAllArticles = (req, res, next) => {
   if (!validColumns.includes(req.query.sort_by)) {
     req.query.sort_by = undefined;
   }
-  fetchAllArticles(req.query)
-    .then(articles => {
-      return res.status(200).send({ articles });
+  const articlesPromise = fetchAllArticles(req.query);
+  const userNamePromise = doesUsernameExist(req.query);
+  const topicPromise = doesTopicExist(req.query);
+
+  Promise.all([userNamePromise, topicPromise, articlesPromise])
+    .then(([username, topic, articles]) => {
+      if (username !== undefined && username.length === 0)
+        return Promise.reject({ status: 404, msg: "Username not found" });
+      if (topic !== undefined && topic.length === 0)
+        return Promise.reject({ status: 404, msg: "Topic not found" });
+      res.status(200).send({ articles });
     })
     .catch(next);
 };

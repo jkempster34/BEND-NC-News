@@ -22,6 +22,14 @@ describe.only("/", () => {
     });
   });
   describe("/api", () => {
+    it("PATCH / PUT / POST / DELETE on /api/ - status 405 - method not found", () => {
+      return request
+        .post("/api")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("Method Not Allowed");
+        });
+    });
     it("GET - status:200", () => {
       return request
         .get("/api")
@@ -30,7 +38,16 @@ describe.only("/", () => {
           expect(body.ok).to.equal(true);
         });
     });
+
     describe("/topics", () => {
+      it("PATCH / PUT / POST / DELETE on /api/topics/ - status 405 - method not found", () => {
+        return request
+          .post("/api/topics")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Method Not Allowed");
+          });
+      });
       it("GET - status: 200 - returns all topics in a topic object", () => {
         return request
           .get("/api/topics/")
@@ -55,6 +72,14 @@ describe.only("/", () => {
       });
     });
     describe("/articles", () => {
+      it("PATCH / PUT / POST / DELETE on /api/articles/ - status 405 - method not found", () => {
+        return request
+          .post("/api")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Method Not Allowed");
+          });
+      });
       it("GET - status 200 - returns an array of article objects", () => {
         return request
           .get("/api/articles/")
@@ -142,7 +167,7 @@ describe.only("/", () => {
           );
         });
       });
-      xit("GET - status 404 - returns message 'Not a username' for the query of a username that is not in the database", () => {
+      it("GET - status 404 - returns message 'Not a username' for the query of a username that is not in the database", () => {
         return request
           .get("/api/articles?username=notausername")
           .expect(404)
@@ -150,7 +175,7 @@ describe.only("/", () => {
             expect(body.msg).to.equal("Username not found");
           });
       });
-      xit("GET - status 404 - returns message 'Not a topic' for the query of a topic that is not in the database", () => {
+      it("GET - status 404 - returns message 'Not a topic' for the query of a topic that is not in the database", () => {
         return request
           .get("/api/articles?topic=notatopic")
           .expect(404)
@@ -158,15 +183,23 @@ describe.only("/", () => {
             expect(body.msg).to.equal("Topic not found");
           });
       });
-      xit("GET - status 200 - returns an empty array for a username that exists but does not have any articles associated with it", () => {
+      it("GET - status 200 - returns an empty array for a username that exists but does not have any articles associated with it", () => {
         return request
           .get("/api/articles?username=lurker")
           .expect(200)
           .then(({ body }) => {
-            expect(body).to.equal([]);
+            expect(body.articles).to.eql([]);
           });
       });
       describe("/articles/:article_id", () => {
+        it("PUT / POST / DELETE on /api/articles/ - status 405 - method not found", () => {
+          return request
+            .post("/api/articles/:article_id")
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Method Not Allowed");
+            });
+        });
         it("GET - status 200 - returns a single article based on article_id parameter", () => {
           return request.get("/api/articles/1").then(({ body }) => {
             expect(body.article).to.eql({
@@ -200,11 +233,33 @@ describe.only("/", () => {
               expect(body.article.votes).to.equal(90);
             });
         });
-        describe("/articles/:article_id/:comments", () => {
-          it("GET - status 200 - returns an array of comments for the given article_id", () => {
-            return request.get("/api/articles/1/comments").then(({ body }) => {
-              expect(body.comments.length).to.equal(13);
+        ///////
+        ///////
+        //////
+        it("GET - status 400 - returns bad request if article_id is invalid", () => {
+          return request
+            .get("/api/articles/1/")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Bad Request");
             });
+        });
+        describe("/articles/:article_id/comments", () => {
+          it("PATCH / PUT / DELETE on /api/articles/:article_id/comments - status 405 - method not found", () => {
+            return request
+              .delete("/api/articles/:article_id/comments")
+              .expect(405)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Method Not Allowed");
+              });
+          });
+          it("GET - status 200 - returns an array of comments for the given article_id", () => {
+            return request
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(13);
+              });
           });
           it("POST - status 200 - returns the posted comment when passed a comment object", () => {
             const newComment = {
@@ -234,6 +289,14 @@ describe.only("/", () => {
         });
       });
       describe("/comments/:comment_id", () => {
+        it("GET / PUT / POST on /api/articles/ - status 405 - method not found", () => {
+          return request
+            .post("/api/comments/:comment_id")
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Method Not Allowed");
+            });
+        });
         it("PATCH - status 200 - increments the comment's vote property when passed an object", () => {
           const newVotes = { inc_votes: 1 };
           return request
@@ -265,6 +328,14 @@ describe.only("/", () => {
         });
       });
       describe("/users/:username", () => {
+        it("PATCH / PUT / POST / DELETE on /api/users/:username - status 405 - method not found", () => {
+          return request
+            .post("/api/users/:username")
+            .expect(405)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Method Not Allowed");
+            });
+        });
         it("GET - status 200 - returns a user object", () => {
           return request.get("/api/users/butter_bridge").then(({ body }) => {
             expect(body.user).to.eql({
@@ -273,8 +344,6 @@ describe.only("/", () => {
                 "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
               name: "jonny"
             });
-
-            //NEARLY DONE
           });
         });
       });

@@ -2,21 +2,27 @@ const connection = require("../db/connection");
 const { makePOSTCommentSuitable } = require("../utils/manipulate-data");
 
 exports.doesUsernameExist = ({ username }) => {
-  return connection
-    .select("username")
-    .from("users")
-    .where("users.username", "=", username)
-    .then(result => {
-      return result;
-    });
+  if (username !== undefined) {
+    return connection
+      .select("username")
+      .from("users")
+      .where("username", "=", username)
+      .then(result => {
+        return result;
+      });
+  }
 };
 
 exports.doesTopicExist = ({ topic }) => {
-  return connection
-    .select("topic")
-    .from("topics")
-    .where("topics.topic", "=", topic)
-    .then(result => result);
+  if (topic !== undefined) {
+    return connection
+      .select("slug")
+      .from("topics")
+      .where("slug", "=", topic)
+      .then(result => {
+        return result;
+      });
+  }
 };
 
 exports.fetchAllArticles = ({ username, topic, sort_by, order }) => {
