@@ -214,7 +214,9 @@ describe.only("/", () => {
           });
         });
         it("PATCH - status 200 - updates an article's votes when passed an object with a positive number", () => {
-          const newVotes = { inc_votes: 10 };
+          const newVotes = {
+            inc_votes: 10
+          };
           return request
             .patch("/api/articles/1")
             .send(newVotes)
@@ -224,7 +226,9 @@ describe.only("/", () => {
             });
         });
         it("PATCH - status 200 - updates an article's votes when passed an object with a negative number", () => {
-          const newVotes = { inc_votes: -10 };
+          const newVotes = {
+            inc_votes: -10
+          };
           return request
             .patch("/api/articles/1")
             .send(newVotes)
@@ -249,9 +253,32 @@ describe.only("/", () => {
               expect(body.msg).to.equal("Article_id not found");
             });
         });
-        /////////////
         it("PATCH - status 400 - returns 'Not valid patch body' if there is no 'inc_votes' key on patch body", () => {
-          const malformedVotes = { NOT_inc_votes: 10 };
+          const malformedVotes = {
+            NOT_inc_votes: 10
+          };
+          return request
+            .patch("/api/articles/1")
+            .send(malformedVotes)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Not valid patch body");
+            });
+        });
+        it("PATCH - status 404 - returns 'inc_votes must be an integer' if 'inc_votes' is not an integer", () => {
+          const malformedVotes = {
+            inc_votes: "cat"
+          };
+          return request
+            .patch("/api/articles/1")
+            .send(malformedVotes)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("inc_votes must be an integer");
+            });
+        });
+        it("PATCH - status 404 - returns 'Not valid patch body' if there is a property on the equest bidy that is not inc_votes", () => {
+          const malformedVotes = { inc_votes: 10, name: "Mitch" };
           return request
             .patch("/api/articles/1")
             .send(malformedVotes)
@@ -300,6 +327,75 @@ describe.only("/", () => {
                 expect(body.comment.body).to.equal("Hello, this is a comment");
                 expect(body.comment.votes).to.equal(0);
                 expect(body.comment.article_id).to.equal(1);
+              });
+          });
+          it("GET - status 400 - returns 'Invalid Id' if article_id is invalid", () => {
+            return request
+              .get("/api/articles/dog/comments")
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Invalid Id");
+              });
+          });
+          it("GET - status 404 - returns 'Not found' if article_id is valid but not found", () => {
+            return request
+              .get("/api/articles/99999/comments")
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Article_id not found");
+              });
+          });
+          it("POST - status 400 - returns 'Not valid POST body' if article_id is valid but the request body does not have the correct keys", () => {
+            const invalidComment = {
+              invalid: "rogersop",
+              alsoNotValid: "Hello, this is a comment"
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(invalidComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Not valid POST body");
+              });
+          });
+          it("POST - status 400 - returns 'Invalid Id' if article_id is invalid", () => {
+            const validComment = {
+              username: "rogersop",
+              body: "Hello, this is a comment"
+            };
+            return request
+              .post("/api/articles/cat/comments")
+              .send(validComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Invalid Id");
+              });
+          });
+          it("POST - status 404 - returns 'Article_id is not valid' if article_id is valid but not found (POST body is valid)", () => {
+            const validComment = {
+              username: "rogersop",
+              body: "Hello, this is a comment"
+            };
+            return request
+              .post("/api/articles/99999/comments")
+              .send(validComment)
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Article_Id is not valid");
+              });
+          });
+          ///
+          it("POST - status 400 - returns 'Not valid POST body' if POST body's key values are the incorrect type", () => {
+            const validComment = {
+              username: 2,
+              body: 2
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(validComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Not valid POST body");
               });
           });
         });

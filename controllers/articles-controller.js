@@ -61,13 +61,17 @@ exports.patchArticleById = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
   fetchCommentsByArticleById(req.params)
     .then(comments => {
+      if (comments.length === 0)
+        return Promise.reject({ status: 404, msg: "Article_id not found" });
       res.status(200).send({ comments });
     })
     .catch(next);
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
-  insertNewCommentByArticleId(req.body, req.params).then(comment => {
-    res.status(201).send({ comment });
-  });
+  insertNewCommentByArticleId(req.body, req.params)
+    .then(comment => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);
 };
