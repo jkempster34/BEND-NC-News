@@ -260,6 +260,23 @@ describe.only("/", () => {
               expect(body.comment.votes).to.equal(15);
             });
         });
+        it("DELETE - status 204 - returns no content", () => {
+          return request.delete("/api/comments/1").expect(204);
+        });
+      });
+      describe("/users/:username", () => {
+        it("GET - status 200 - returns a user object", () => {
+          return request.get("/api/users/butter_bridge").then(({ body }) => {
+            expect(body.user).to.eql({
+              username: "butter_bridge",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+              name: "jonny"
+            });
+
+            //NEARLY DONE
+          });
+        });
       });
     });
   });

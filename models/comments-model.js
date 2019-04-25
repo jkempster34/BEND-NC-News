@@ -7,3 +7,9 @@ exports.updateCommentByCommentId = ({ inc_votes }, { comment_id }) => {
     .returning("*")
     .then(([result]) => result);
 };
+
+exports.removeAComment = ({ comment_id }) => {
+  return connection("comments")
+    .where("comment_id", "=", comment_id)
+    .del();
+};
