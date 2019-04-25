@@ -68,6 +68,12 @@ exports.fetchArticleById = ({ article_id }) => {
 };
 
 exports.updateAnArticleById = ({ inc_votes }, { article_id }) => {
+  if (inc_votes === undefined) {
+    return Promise.reject({
+      status: 400,
+      msg: "Not valid patch body"
+    });
+  }
   return connection("articles")
     .where("article_id", "=", article_id)
     .increment("votes", inc_votes)

@@ -40,6 +40,11 @@ exports.getAllArticles = (req, res, next) => {
 exports.getArticleById = (req, res, next) => {
   fetchArticleById(req.params)
     .then(article => {
+      if (article === undefined)
+        return Promise.reject({
+          status: 404,
+          msg: "Article_id not found"
+        });
       res.status(200).send({ article });
     })
     .catch(next);
