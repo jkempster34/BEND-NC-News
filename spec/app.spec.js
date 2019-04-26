@@ -265,7 +265,7 @@ describe.only("/", () => {
               expect(body.msg).to.equal("Not valid patch body");
             });
         });
-        it("PATCH - status 404 - returns 'inc_votes must be an integer' if 'inc_votes' is not an integer", () => {
+        it("PATCH - status 400 - returns 'inc_votes must be an integer' if 'inc_votes' is not an integer", () => {
           const malformedVotes = {
             inc_votes: "cat"
           };
@@ -277,7 +277,7 @@ describe.only("/", () => {
               expect(body.msg).to.equal("inc_votes must be an integer");
             });
         });
-        it("PATCH - status 404 - returns 'Not valid patch body' if there is a property on the equest bidy that is not inc_votes", () => {
+        it("PATCH - status 400 - returns 'Not valid patch body' if there is a property on the equest bidy that is not inc_votes", () => {
           const malformedVotes = { inc_votes: 10, name: "Mitch" };
           return request
             .patch("/api/articles/1")
@@ -371,6 +371,7 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Invalid Id");
               });
           });
+          //// ask about this one
           it("POST - status 404 - returns 'Article_id is not valid' if article_id is valid but not found (POST body is valid)", () => {
             const validComment = {
               username: "rogersop",
@@ -384,7 +385,6 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Article_Id is not valid");
               });
           });
-          ///
           it("POST - status 400 - returns 'Not valid POST body' if POST body's key values are the incorrect type", () => {
             const validComment = {
               username: 2,
@@ -438,7 +438,29 @@ describe.only("/", () => {
         it("DELETE - status 204 - returns no content", () => {
           return request.delete("/api/comments/1").expect(204);
         });
+        it("GET - status 200 - sorts the comments by created_at (desc) as default", () => {
+          return request.get("/api/articles/1/comments").then(({ body }) => {
+            expect(body.comments[0].created_at).to.equal(
+              "2016-11-22T12:36:03.389Z"
+            );
+          });
+        });
+        it("GET - status 200 - can sort by other valid columns", () => {
+          return request
+            .get("/api/articles/1/comments?sort_by=votes")
+            .then(({ body }) => {
+              expect(body.comments[0].votes).to.equal(100);
+            });
+        });
+        it("GET - status 200 - can specify order of sort as ascending", () => {
+          return request
+            .get("/api/articles/1/comments?sort_by=votes&&order=asc")
+            .then(({ body }) => {
+              expect(body.comments[0].votes).to.equal(-100);
+            });
+        });
       });
+
       describe("/users/:username", () => {
         it("PATCH / PUT / POST / DELETE on /api/users/:username - status 405 - method not found", () => {
           return request

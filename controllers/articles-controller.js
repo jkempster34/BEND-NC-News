@@ -59,7 +59,18 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
-  fetchCommentsByArticleById(req.params)
+  const validCommentsColumns = [
+    "comment_id",
+    "author",
+    "article_id",
+    "votes",
+    "created_at",
+    "body"
+  ];
+  if (!validCommentsColumns.includes(req.query.sort_by)) {
+    req.query.sort_by = undefined;
+  }
+  fetchCommentsByArticleById(req.params, req.query)
     .then(comments => {
       if (comments.length === 0)
         return Promise.reject({ status: 404, msg: "Article_id not found" });
