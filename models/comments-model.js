@@ -29,5 +29,15 @@ exports.updateCommentByCommentId = (body, { comment_id }) => {
 exports.removeAComment = ({ comment_id }) => {
   return connection("comments")
     .where("comment_id", "=", comment_id)
-    .del();
+    .then(result => {
+      if (result.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Id valid but not found"
+        });
+      }
+      return connection("comments")
+        .where("comment_id", "=", comment_id)
+        .del();
+    });
 };
