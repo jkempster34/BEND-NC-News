@@ -14,7 +14,7 @@ exports.handleCustomErrors = (err, req, res, next) => {
 exports.handlePsqlErrors = (err, req, res, next) => {
   const psqlBadRequestCodes = {
     "22P02": { msg: "Invalid Id", status: 400 },
-    "23503": { msg: "Article_Id is not valid", status: 404 }
+    "23503": { msg: "Article_Id is valid but does not exist", status: 404 }
   };
   if (psqlBadRequestCodes[err.code]) {
     res
