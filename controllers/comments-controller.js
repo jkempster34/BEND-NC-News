@@ -12,7 +12,9 @@ exports.patchCommentByCommentId = (req, res, next) => {
 };
 
 exports.deleteAComment = (req, res, next) => {
-  removeAComment(req.params).then(() => {
-    res.sendStatus(204);
-  });
+  removeAComment(req.params)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(next);
 };

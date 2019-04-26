@@ -527,6 +527,25 @@ describe.only("/", () => {
               });
             });
         });
+        //
+        it('DELETE - status 400 - returns "Invalid Id" if comment Id is invalid', () => {
+          return request
+            .delete("/api/comments/dog")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Invalid Id");
+            });
+        });
+        /////
+        it('DELETE - status 404 - returns "Id valid but not found" if comment Id valid but not ', () => {
+          return request
+            .delete("/api/comments/99999")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Id valid but not found");
+            });
+        });
+        /////
       });
       describe("/users/:username", () => {
         it("PATCH / PUT / POST / DELETE on /api/users/:username - status 405 - method not found", () => {
