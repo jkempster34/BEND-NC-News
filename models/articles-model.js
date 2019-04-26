@@ -99,10 +99,6 @@ exports.fetchCommentsByArticleById = ({ article_id }, { sort_by, order }) => {
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
-  // console.log(body.username);
-  // const isUserInUsers = doesUsernameExist(body);
-  // console.log(isUserInUsers);
-  // /// if username is not in users, but is not undefined
   if (
     !Object.keys(body).includes("username") ||
     !Object.keys(body).includes("body") ||
@@ -110,11 +106,29 @@ exports.insertNewCommentByArticleId = (body, { article_id }) => {
     typeof body.body !== "string"
   )
     return Promise.reject({ status: 400, msg: "Not valid POST body" });
-  const correctlyFormattedData = makePOSTCommentSuitable(body, article_id);
-  return connection("comments")
-    .insert(correctlyFormattedData)
-    .returning("*")
-    .then(([result]) => {
-      return result;
-    });
+  else {
+    return connection
+      .select("username")
+      .from("users")
+      .where("username", "=", body.username)
+      .then(result => {
+        if (result.length === 0)
+          return Promise.reject({
+            status: 404,
+            msg: "Username not found"
+          });
+        else {
+          const correctlyFormattedData = makePOSTCommentSuitable(
+            body,
+            article_id
+          );
+          return connection("comments")
+            .insert(correctlyFormattedData)
+            .returning("*");
+        }
+      })
+      .then(([result]) => {
+        return result;
+      });
+  }
 };
