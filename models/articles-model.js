@@ -87,11 +87,15 @@ exports.updateAnArticleById = (body, { article_id }) => {
     .then(([result]) => result);
 };
 
-exports.fetchCommentsByArticleById = ({ article_id }) => {
+exports.fetchCommentsByArticleById = ({ article_id }, { sort_by, order }) => {
   return connection
     .select("comment_id", "votes", "created_at", "author", "body")
     .from("comments")
-    .where("comments.article_id", "=", article_id);
+    .where("comments.article_id", "=", article_id)
+    .orderBy(
+      sort_by || "created_at",
+      order === "asc" || order === "desc" ? order : "desc"
+    );
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
