@@ -99,6 +99,10 @@ exports.fetchCommentsByArticleById = ({ article_id }, { sort_by, order }) => {
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
+  // console.log(body.username);
+  // const isUserInUsers = doesUsernameExist(body);
+  // console.log(isUserInUsers);
+  // /// if username is not in users, but is not undefined
   if (
     !Object.keys(body).includes("username") ||
     !Object.keys(body).includes("body") ||

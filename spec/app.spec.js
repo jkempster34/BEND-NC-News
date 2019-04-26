@@ -408,18 +408,33 @@ describe.only("/", () => {
               });
           });
           it("POST - status 400 - returns 'Not valid POST body' if POST body's key values are the incorrect type", () => {
-            const validComment = {
+            const invalidComment = {
               username: 2,
               body: 2
             };
             return request
               .post("/api/articles/1/comments")
-              .send(validComment)
+              .send(invalidComment)
               .expect(400)
               .then(({ body }) => {
                 expect(body.msg).to.equal("Not valid POST body");
               });
           });
+          ////
+          it("POST - status 404 - returns 'Username not found' if POST body's user key is not a username", () => {
+            const invalidComment = {
+              username: "ImNotAUser",
+              body: "Hello, this is a comment"
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(invalidComment)
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.equal("Username not found");
+              });
+          });
+          //////
         });
       });
       describe("/comments/:comment_id", () => {
@@ -492,6 +507,24 @@ describe.only("/", () => {
             .expect(400)
             .then(({ body }) => {
               expect(body.msg).to.equal("Not valid patch body");
+            });
+        });
+        it("PATCH - status 200 - returns the comment if the patch body is empty", () => {
+          const malformedVotes = {};
+          return request
+            .patch("/api/comments/1")
+            .send(malformedVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comment).to.eql({
+                comment_id: 1,
+                author: "butter_bridge",
+                article_id: 9,
+                votes: 16,
+                created_at: "2017-11-22T12:36:03.389Z",
+                body:
+                  "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+              });
             });
         });
       });
