@@ -79,6 +79,28 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .catch(next);
 };
 
+// exports.postCommentByArticleId = (req, res, next) => {
+//   console.log(req.body.username);
+//   if (req.body.username !== undefined) console.log("here");
+//   doesUsernameExist(req.body.username)
+//     .then(result => {
+//       console.log(result);
+//       if (result.length === 0)
+//         return Promise.reject({ status: 404, msg: "Username not found" });
+//     })
+//     .then(() => {
+//       console.log("here");
+//       insertNewCommentByArticleId(req.body, req.params);
+//     })
+
+//     /// if username is not in users, but is not undefined
+
+//     .then(comment => {
+//       res.status(201).send({ comment });
+//     })
+//     .catch(next);
+// };
+
 exports.postCommentByArticleId = (req, res, next) => {
   insertNewCommentByArticleId(req.body, req.params)
     .then(comment => {
