@@ -9,9 +9,9 @@ const {
 
 describe("timeStampToDate()", () => {
   it("Does not mutate the original array", () => {
-    const input = [{}];
+    const input = [{ created_at: 1542284514171 }];
     const actual = timeStampToDate(input);
-    const output = [{}];
+    const output = [{ created_at: "2018-11-15T12:21:54.171Z" }];
     expect(actual).to.eql(output);
     expect(actual[0]).to.eql(output[0]);
     expect(input).to.not.equal(actual);
@@ -53,9 +53,9 @@ describe("timeStampToDate()", () => {
 });
 describe("changeNameOfKey()", () => {
   it("Does not mutate the original array", () => {
-    const input = [{}];
+    const input = [{ created_by: "butter_bridge" }];
     const actual = changeNameOfKey(input);
-    const output = [{}];
+    const output = [{ author: "butter_bridge" }];
     expect(actual).to.eql(output);
     expect(actual[0]).to.eql(output[0]);
     expect(input).to.not.equal(actual);
@@ -179,9 +179,9 @@ describe("swapOutAKey()", () => {
 });
 describe("makePOSTCommentSuitable()", () => {
   it("Does not mutate original object", () => {
-    const input = {};
+    const input = { username: "rogersop" };
     const actual = makePOSTCommentSuitable(input);
-    const output = {};
+    const output = { author: "rogersop", article_id: undefined };
     expect(actual).to.eql(output);
     expect(input).to.not.equal(actual);
   });
