@@ -8,7 +8,7 @@ const connection = require("../db/connection");
 
 const request = supertest(app);
 
-describe.only("/", () => {
+describe("/", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
   describe("/*** route-not found", () => {

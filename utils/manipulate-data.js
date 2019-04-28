@@ -14,11 +14,8 @@ exports.changeNameOfKey = (
   newName = "author"
 ) => {
   if (!Object.keys(arr[0]).length) return [{}];
-  const result = arr.map(element => {
-    const newElement = { ...element };
-    newElement[newName] = newElement[nameOfKey];
-    delete newElement[nameOfKey];
-    return newElement;
+  const result = arr.map(({ [nameOfKey]: old, ...others }) => {
+    return { [newName]: old, ...others };
   });
   return result;
 };
@@ -42,20 +39,14 @@ exports.swapOutAKey = (
   newValue = "belongs_to"
 ) => {
   if (!Object.keys(array[0]).length) return [{}];
-  const result = array.map(element => {
-    const newElement = { ...element };
-    newElement[newKey] = lookupObject[newElement[newValue]];
-    delete newElement[newValue];
-    return newElement;
+  const result = array.map(({ [newValue]: old, ...others }) => {
+    return { [newKey]: lookupObject[old], ...others };
   });
   return result;
 };
 
 exports.makePOSTCommentSuitable = (object, article_id) => {
   if (!Object.keys(object).length) return {};
-  const newObject = { ...object };
-  newObject.author = newObject.username;
-  delete newObject.username;
-  newObject.article_id = article_id;
-  return newObject;
+  const { username, ...restOfObject } = object;
+  return { author: username, ...restOfObject, article_id: article_id };
 };
