@@ -23,7 +23,14 @@ exports.updateCommentByCommentId = (body, { comment_id }) => {
     .where("comment_id", "=", comment_id)
     .increment("votes", body.inc_votes)
     .returning("*")
-    .then(([result]) => result);
+    .then(([result]) => {
+      if (result === undefined)
+        return Promise.reject({
+          status: 404,
+          msg: "Id valid but not found"
+        });
+      return result;
+    });
 };
 
 exports.removeAComment = ({ comment_id }) => {
