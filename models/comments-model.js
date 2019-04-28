@@ -21,7 +21,7 @@ exports.updateCommentByCommentId = (body, { comment_id }) => {
   }
   return connection("comments")
     .where("comment_id", "=", comment_id)
-    .increment("votes", body.inc_votes)
+    .increment("votes", body.inc_votes || 0)
     .returning("*")
     .then(([result]) => {
       if (result === undefined)
