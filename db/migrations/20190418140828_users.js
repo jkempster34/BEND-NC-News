@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
       .primary()
       .unique();
     usersTable.string("avatar_url");
-    usersTable.string("name");
+    usersTable.string("name").notNullable();
   });
 };
 

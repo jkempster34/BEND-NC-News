@@ -385,7 +385,6 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Article_id not found");
               });
           });
-          ///
           it("GET - status 200 - serve an empty array when the article exists but has no comments", () => {
             return request
               .get("/api/articles/3/comments")
@@ -394,7 +393,6 @@ describe.only("/", () => {
                 expect(body.comments).to.eql([]);
               });
           });
-          ////
           it("POST - status 400 - returns 'Not valid POST body' if article_id is valid but the request body does not have the correct keys", () => {
             const invalidComment = {
               invalid: "rogersop",
@@ -554,6 +552,16 @@ describe.only("/", () => {
               });
             });
         });
+        it("PATCH - status 404 - returns 'Not found' when PATCH has a valid comment_id that does not exist", () => {
+          const newVotes = { inc_votes: 1 };
+          return request
+            .patch("/api/comments/9999")
+            .send(newVotes)
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Id valid but not found");
+            });
+        });
         it('DELETE - status 400 - returns "Invalid Id" if comment Id is invalid', () => {
           return request
             .delete("/api/comments/dog")
@@ -562,7 +570,7 @@ describe.only("/", () => {
               expect(body.msg).to.equal("Invalid Id");
             });
         });
-        it('DELETE - status 404 - returns "Id valid but not found" if comment Id valid but not ', () => {
+        it('DELETE - status 404 - returns "Id valid but not found" when DELETE has a valid comment_id that does not exist', () => {
           return request
             .delete("/api/comments/99999")
             .expect(404)
