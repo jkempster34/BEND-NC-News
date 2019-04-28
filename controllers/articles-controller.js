@@ -7,6 +7,7 @@ const {
   fetchCommentsByArticleById,
   insertNewCommentByArticleId
 } = require("../models/articles-model");
+const { fetchUserByUsername } = require("../models/users-model");
 
 exports.getAllArticles = (req, res, next) => {
   const validColumns = [
@@ -23,7 +24,7 @@ exports.getAllArticles = (req, res, next) => {
     req.query.sort_by = undefined;
   }
   const articlesPromise = fetchAllArticles(req.query);
-  const userNamePromise = doesUsernameExist(req.query);
+  const userNamePromise = fetchUserByUsername(req.query);
   const topicPromise = doesTopicExist(req.query);
 
   Promise.all([userNamePromise, topicPromise, articlesPromise])
@@ -51,11 +52,16 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.patchArticleById = (req, res, next) => {
-  updateAnArticleById(req.body, req.params)
-    .then(article => {
+  if (Object.keys(req.body).length === 0) {
+    fetchArticleById(req.params).then(article => {
       res.status(200).send({ article });
-    })
-    .catch(next);
+    });
+  } else
+    updateAnArticleById(req.body, req.params)
+      .then(article => {
+        res.status(200).send({ article });
+      })
+      .catch(next);
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
@@ -70,9 +76,11 @@ exports.getCommentsByArticleId = (req, res, next) => {
   if (!validCommentsColumns.includes(req.query.sort_by)) {
     req.query.sort_by = undefined;
   }
-  fetchCommentsByArticleById(req.params, req.query)
-    .then(comments => {
-      if (comments.length === 0)
+  const articlesPromise = fetchArticleById(req.params);
+  const commentsPromise = fetchCommentsByArticleById(req.params, req.query);
+  Promise.all([articlesPromise, commentsPromise])
+    .then(([articles, comments]) => {
+      if (articles === undefined)
         return Promise.reject({ status: 404, msg: "Article_id not found" });
       res.status(200).send({ comments });
     })

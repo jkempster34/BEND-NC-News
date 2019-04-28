@@ -1,9 +1,10 @@
 const connection = require("../db/connection");
 
 exports.fetchUserByUsername = ({ username }) => {
-  return connection
-    .select("*")
-    .from("users")
-    .where("username", "=", username)
-    .then(([result]) => result);
+  if (username !== undefined) {
+    return connection
+      .select("*")
+      .from("users")
+      .where("username", "=", username);
+  }
 };
