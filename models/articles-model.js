@@ -1,18 +1,6 @@
 const connection = require("../db/connection");
 const { makePOSTCommentSuitable } = require("../utils/manipulate-data");
 
-exports.doesUsernameExist = ({ username }) => {
-  if (username !== undefined) {
-    return connection
-      .select("username")
-      .from("users")
-      .where("username", "=", username)
-      .then(result => {
-        return result;
-      });
-  }
-};
-
 exports.doesTopicExist = ({ topic }) => {
   if (topic !== undefined) {
     return connection
@@ -25,7 +13,7 @@ exports.doesTopicExist = ({ topic }) => {
   }
 };
 
-exports.fetchAllArticles = ({ username, topic, sort_by, order }) => {
+exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
   return connection
     .select(
       "articles.author",
@@ -44,7 +32,7 @@ exports.fetchAllArticles = ({ username, topic, sort_by, order }) => {
       order === "asc" || order === "desc" ? order : "desc"
     )
     .modify(query => {
-      if (username) query.where("articles.author", "=", username);
+      if (author) query.where("articles.author", "=", author);
       if (topic) query.where("articles.topic", "=", topic);
     });
 };
@@ -57,7 +45,8 @@ exports.fetchArticleById = ({ article_id }) => {
       "articles.article_id",
       "topic",
       "articles.created_at",
-      "articles.votes"
+      "articles.votes",
+      "articles.body"
     )
     .from("articles")
     .count({ comment_count: "comments.article_id" })

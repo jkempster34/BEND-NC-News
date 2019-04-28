@@ -38,7 +38,6 @@ describe.only("/", () => {
           expect(body.ok).to.equal(true);
         });
     });
-
     describe("/topics", () => {
       it("PATCH / PUT / POST / DELETE on /api/topics/ - status 405 - method not found", () => {
         return request
@@ -97,9 +96,9 @@ describe.only("/", () => {
             });
           });
       });
-      it("GET - status 200 - filters articles by username specified in the query", () => {
+      it("GET - status 200 - filters articles by author specified in the query", () => {
         return request
-          .get("/api/articles?username=rogersop")
+          .get("/api/articles?author=rogersop")
           .expect(200)
           .then(({ body }) => {
             expect(body.articles.length).to.equal(3);
@@ -185,7 +184,7 @@ describe.only("/", () => {
       });
       it("GET - status 200 - returns an empty array for a username that exists but does not have any articles associated with it", () => {
         return request
-          .get("/api/articles?username=lurker")
+          .get("/api/articles?author=lurker")
           .expect(200)
           .then(({ body }) => {
             expect(body.articles).to.eql([]);
@@ -209,7 +208,8 @@ describe.only("/", () => {
               topic: "mitch",
               created_at: "2018-11-15T12:21:54.171Z",
               votes: 100,
-              comment_count: "13"
+              comment_count: "13",
+              body: "I find this existence challenging"
             });
           });
         });
@@ -285,6 +285,25 @@ describe.only("/", () => {
             .expect(400)
             .then(({ body }) => {
               expect(body.msg).to.equal("Not valid patch body");
+            });
+        });
+        it("PATCH - status 200 - ignore a patch request with no iinformation on the body and send the unchanged article", () => {
+          const malformedVotes = {};
+          return request
+            .patch("/api/articles/1")
+            .send(malformedVotes)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.article).to.eql({
+                author: "butter_bridge",
+                title: "Living in the shadow of a great man",
+                article_id: 1,
+                topic: "mitch",
+                created_at: "2018-11-15T12:21:54.171Z",
+                votes: 100,
+                comment_count: "13",
+                body: "I find this existence challenging"
+              });
             });
         });
         describe("/articles/:article_id/comments", () => {
@@ -366,6 +385,16 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Article_id not found");
               });
           });
+          ///
+          it("GET - status 200 - serve an empty array when the article exists but has no comments", () => {
+            return request
+              .get("/api/articles/3/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.eql([]);
+              });
+          });
+          ////
           it("POST - status 400 - returns 'Not valid POST body' if article_id is valid but the request body does not have the correct keys", () => {
             const invalidComment = {
               invalid: "rogersop",
@@ -420,7 +449,6 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Not valid POST body");
               });
           });
-          ////
           it("POST - status 404 - returns 'Username not found' if POST body's user key is not a username", () => {
             const invalidComment = {
               username: "ImNotAUser",
@@ -434,7 +462,6 @@ describe.only("/", () => {
                 expect(body.msg).to.equal("Username not found");
               });
           });
-          //////
         });
       });
       describe("/comments/:comment_id", () => {
@@ -527,7 +554,6 @@ describe.only("/", () => {
               });
             });
         });
-        //
         it('DELETE - status 400 - returns "Invalid Id" if comment Id is invalid', () => {
           return request
             .delete("/api/comments/dog")
@@ -536,7 +562,6 @@ describe.only("/", () => {
               expect(body.msg).to.equal("Invalid Id");
             });
         });
-        /////
         it('DELETE - status 404 - returns "Id valid but not found" if comment Id valid but not ', () => {
           return request
             .delete("/api/comments/99999")
@@ -545,7 +570,6 @@ describe.only("/", () => {
               expect(body.msg).to.equal("Id valid but not found");
             });
         });
-        /////
       });
       describe("/users/:username", () => {
         it("PATCH / PUT / POST / DELETE on /api/users/:username - status 405 - method not found", () => {
@@ -557,14 +581,25 @@ describe.only("/", () => {
             });
         });
         it("GET - status 200 - returns a user object", () => {
-          return request.get("/api/users/butter_bridge").then(({ body }) => {
-            expect(body.user).to.eql({
-              username: "butter_bridge",
-              avatar_url:
-                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-              name: "jonny"
+          return request
+            .get("/api/users/butter_bridge")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.user).to.eql({
+                username: "butter_bridge",
+                avatar_url:
+                  "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+                name: "jonny"
+              });
             });
-          });
+        });
+        it('GET - status 404 - returns "Username does not exist" if username does not exist', () => {
+          return request
+            .get("/api/users/notAUsername")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.equal("Username does not exist");
+            });
         });
       });
     });
