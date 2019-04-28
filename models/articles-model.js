@@ -71,7 +71,7 @@ exports.updateAnArticleById = (body, { article_id }) => {
   }
   return connection("articles")
     .where("article_id", "=", article_id)
-    .increment("votes", body.inc_votes)
+    .increment("votes", body.inc_votes || 0)
     .returning("*")
     .then(([result]) => result);
 };
