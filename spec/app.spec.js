@@ -166,12 +166,12 @@ describe("/", () => {
           );
         });
       });
-      it("GET - status 404 - returns message 'Not a username' for the query of a username that is not in the database", () => {
+      it("GET - status 404 - returns message 'Not an author' for the query of a username that is not in the database", () => {
         return request
-          .get("/api/articles?username=notausername")
+          .get("/api/articles?author=notanauthor")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).to.equal("Username not found");
+            expect(body.msg).to.equal("Author not found");
           });
       });
       it("GET - status 404 - returns message 'Not a topic' for the query of a topic that is not in the database", () => {
