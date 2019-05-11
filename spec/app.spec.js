@@ -30,12 +30,15 @@ describe("/", () => {
           expect(body.msg).to.equal("Method Not Allowed");
         });
     });
-    it("GET - status:200", () => {
+    it("GET - status:200 - returns a JSON describing all the available endpoints on your API", () => {
       return request
         .get("/api")
         .expect(200)
         .then(({ body }) => {
-          expect(body.ok).to.equal(true);
+          expect(body["GET /api"]).to.eql({
+            description:
+              "serves up a json representation of all the available endpoints of the api"
+          });
         });
     });
     describe("/topics", () => {
