@@ -28,9 +28,9 @@ exports.getAllArticles = (req, res, next) => {
   const topicPromise = doesTopicExist(req.query);
 
   Promise.all([userNamePromise, topicPromise, articlesPromise])
-    .then(([username, topic, articles]) => {
-      if (username !== undefined && username.length === 0)
-        return Promise.reject({ status: 404, msg: "Username not found" });
+    .then(([author, topic, articles]) => {
+      if (author !== undefined && author.length === 0)
+        return Promise.reject({ status: 404, msg: "Author not found" });
       if (topic !== undefined && topic.length === 0)
         return Promise.reject({ status: 404, msg: "Topic not found" });
       res.status(200).send({ articles });
