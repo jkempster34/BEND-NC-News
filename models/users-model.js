@@ -1,7 +1,6 @@
 const connection = require("../db/connection");
 
 exports.fetchUserByUsername = ({ username, author }) => {
-  console.log(author);
   if (username !== undefined) {
     return connection
       .select("*")
