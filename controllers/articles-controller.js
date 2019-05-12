@@ -1,7 +1,6 @@
 const {
   fetchAllArticles,
   fetchArticleById,
-  doesUsernameExist,
   doesTopicExist,
   updateAnArticleById,
   fetchCommentsByArticleById,
@@ -33,7 +32,7 @@ exports.getAllArticles = (req, res, next) => {
         return Promise.reject({ status: 404, msg: "Author not found" });
       if (topic !== undefined && topic.length === 0)
         return Promise.reject({ status: 404, msg: "Topic not found" });
-      res.status(200).send({ articles });
+      res.status(200).send(articles);
     })
     .catch(next);
 };

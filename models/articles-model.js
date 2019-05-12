@@ -13,8 +13,7 @@ exports.doesTopicExist = ({ topic }) => {
   }
 };
 
-exports.fetchAllArticles = ({ author, topic, sort_by, order, limit }) => {
-  console.log(limit);
+exports.fetchAllArticles = ({ author, topic, sort_by, order, limit, p }) => {
   return connection
     .select(
       "articles.author",
@@ -36,7 +35,15 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order, limit }) => {
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("articles.topic", "=", topic);
     })
-    .limit(limit || 10);
+    .then(articles => {
+      return {
+        articles: articles.slice(
+          ((p || 1) - 1) * (limit || 10),
+          (p || 1) * (limit || 10)
+        ),
+        total_count: articles.length
+      };
+    });
 };
 
 exports.fetchArticleById = ({ article_id }) => {
