@@ -345,7 +345,7 @@ describe.only("/", () => {
           });
           it("GET - status 200 - returns an array of comments for the given article_id", () => {
             return request
-              .get("/api/articles/1/comments")
+              .get("/api/articles/1/comments?limit=20")
               .expect(200)
               .then(({ body }) => {
                 expect(body.comments.length).to.equal(13);
@@ -395,6 +395,26 @@ describe.only("/", () => {
               .get("/api/articles/1/comments?sort_by=votes&&order=asc")
               .then(({ body }) => {
                 expect(body.comments[0].votes).to.equal(-100);
+              });
+          });
+          it("GET - status 200 - accepts a limit query which limits the number of responses", () => {
+            return request
+              .get("/api/articles/1/comments?limit=5")
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(5);
+              });
+          });
+          it("GET - status 200 - limit query defaults to 10 if not specified", () => {
+            return request.get("/api/articles/1/comments").then(({ body }) => {
+              expect(body.comments.length).to.equal(10);
+            });
+          });
+          it("GET - status 200 - accepts a p query which specifies the page at which to start (calculated using limit)", () => {
+            return request
+              .get("/api/articles/1/comments?limit=5&&p=2")
+              .then(({ body }) => {
+                expect(body.comments.length).to.equal(5);
+                expect(body.comments[0].body).to.equal("Lobster pot");
               });
           });
           it("GET - status 400 - returns 'Invalid Id' if article_id is invalid", () => {

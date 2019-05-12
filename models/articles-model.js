@@ -85,7 +85,10 @@ exports.updateAnArticleById = (body, { article_id }) => {
     .then(([result]) => result);
 };
 
-exports.fetchCommentsByArticleById = ({ article_id }, { sort_by, order }) => {
+exports.fetchCommentsByArticleById = (
+  { article_id },
+  { sort_by, order, limit, p }
+) => {
   return connection
     .select("comment_id", "votes", "created_at", "author", "body")
     .from("comments")
@@ -93,7 +96,9 @@ exports.fetchCommentsByArticleById = ({ article_id }, { sort_by, order }) => {
     .orderBy(
       sort_by || "created_at",
       order === "asc" || order === "desc" ? order : "desc"
-    );
+    )
+    .limit(limit || 10)
+    .offset((p - 1) * limit || 0);
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
