@@ -218,6 +218,40 @@ describe.only("/", () => {
             expect(body.articles).to.eql([]);
           });
       });
+      it("POST - status 201 - returns the new article when passed a comment object", () => {
+        const newArticle = {
+          author: "rogersop",
+          title: "Article Title",
+          topic: "mitch",
+          body: "Hello, this is an article body"
+        };
+        return request
+          .post("/api/articles/")
+          .send(newArticle)
+          .expect(201)
+          .then(({ body }) => {
+            console.log(body, "Joe");
+            expect(body.article).to.contain.keys(
+              "author",
+              "title",
+              "article_id",
+              "topic",
+              "created_at",
+              "body",
+              "votes",
+              "comment_count"
+            );
+            expect(body.article.author).to.equal("rogersop");
+            expect(body.article.title).to.equal("Article Title");
+            expect(body.article.article_id).to.equal(13);
+            expect(body.article.topic).to.equal("mitch");
+            expect(body.article.body).to.equal(
+              "Hello, this is an article body"
+            );
+            expect(body.article.votes).to.equal(0);
+            expect(body.article.comment_count).to.equal(0);
+          });
+      });
       describe("/articles/:article_id", () => {
         it("PUT / POST / DELETE on /api/articles/ - status 405 - method not found", () => {
           return request
@@ -351,7 +385,7 @@ describe.only("/", () => {
                 expect(body.comments.length).to.equal(13);
               });
           });
-          it("POST - status 200 - returns the posted comment when passed a comment object", () => {
+          it("POST - status 201 - returns the posted comment when passed a comment object", () => {
             const newComment = {
               username: "rogersop",
               body: "Hello, this is a comment"

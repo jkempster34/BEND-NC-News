@@ -1,7 +1,8 @@
 const {
-  fetchAllArticles,
-  fetchArticleById,
   doesTopicExist,
+  fetchAllArticles,
+  insertNewArticle,
+  fetchArticleById,
   updateAnArticleById,
   fetchCommentsByArticleById,
   insertNewCommentByArticleId
@@ -33,6 +34,14 @@ exports.getAllArticles = (req, res, next) => {
       if (topic !== undefined && topic.length === 0)
         return Promise.reject({ status: 404, msg: "Topic not found" });
       res.status(200).send(articles);
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  insertNewArticle(req.body)
+    .then(article => {
+      res.status(201).send(article);
     })
     .catch(next);
 };

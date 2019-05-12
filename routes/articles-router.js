@@ -2,6 +2,7 @@ const articlesRouter = require("express").Router();
 const { methodNotAllowed } = require("../errors");
 const {
   getAllArticles,
+  postArticle,
   getArticleById,
   patchArticleById,
   getCommentsByArticleId,
@@ -11,6 +12,7 @@ const {
 articlesRouter
   .route("/")
   .get(getAllArticles)
+  .post(postArticle)
   .all(methodNotAllowed);
 
 articlesRouter
