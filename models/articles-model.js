@@ -46,6 +46,16 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order, limit, p }) => {
     });
 };
 
+exports.insertNewArticle = body => {
+  return connection("articles")
+    .insert(body)
+    .returning("*")
+    .then(([article]) => {
+      article.comment_count = 0;
+      return { article };
+    });
+};
+
 exports.fetchArticleById = ({ article_id }) => {
   return connection
     .select(
