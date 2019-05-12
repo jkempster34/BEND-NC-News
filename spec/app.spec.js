@@ -171,7 +171,6 @@ describe.only("/", () => {
           );
         });
       });
-      //////
       it("GET - status 200 - accepts a limit query which limits the number of responses", () => {
         return request.get("/api/articles?limit=5").then(({ body }) => {
           expect(body.articles.length).to.equal(5);
@@ -182,8 +181,19 @@ describe.only("/", () => {
           expect(body.articles.length).to.equal(10);
         });
       });
-
-      ////
+      it("GET - status 200 - accepts a p query which specifies the page at which to start (calculated using limit)", () => {
+        return request.get("/api/articles?limit=5&&p=2").then(({ body }) => {
+          expect(body.articles.length).to.equal(5);
+          expect(body.articles[0].title).to.equal("A");
+        });
+      });
+      it("GET - status 200 - returned object has a total count property which reflects the number of articles while discounting any limit", () => {
+        return request
+          .get("/api/articles?topic=mitch&&limit=5&&p=2")
+          .then(({ body }) => {
+            expect(body.total_count).to.equal(11);
+          });
+      });
       it("GET - status 404 - returns message 'Not an author' for the query of a username that is not in the database", () => {
         return request
           .get("/api/articles?author=notanauthor")
