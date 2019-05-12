@@ -9,3 +9,16 @@ The deployed back end can be found at: https://nc-news-joseph-kempster.herokuapp
 ## Getting Started
 
 ### Prerequisites
+
+### Installing
+
+## Built With
+
+- [Node.JS](https://nodejs.org)
+- [generator-knexpress](https://github.com/AnthonyMedina/generator-knexpress)
+- [Express](https://expressjs.com/)
+- [Knex.js](https://knexjs.org)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Chai](https://www.chaijs.com/)
+- [Mocha](https://mochajs.org/)
+- [SuperTest](https://github.com/visionmedia/supertest)
