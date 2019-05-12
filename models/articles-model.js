@@ -13,7 +13,8 @@ exports.doesTopicExist = ({ topic }) => {
   }
 };
 
-exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
+exports.fetchAllArticles = ({ author, topic, sort_by, order, limit }) => {
+  console.log(limit);
   return connection
     .select(
       "articles.author",
@@ -34,7 +35,8 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order }) => {
     .modify(query => {
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("articles.topic", "=", topic);
-    });
+    })
+    .limit(limit || 10);
 };
 
 exports.fetchArticleById = ({ article_id }) => {

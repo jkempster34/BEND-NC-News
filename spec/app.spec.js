@@ -8,7 +8,7 @@ const connection = require("../db/connection");
 
 const request = supertest(app);
 
-describe("/", () => {
+describe.only("/", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
   describe("/*** route-not found", () => {
@@ -122,14 +122,16 @@ describe("/", () => {
           });
       });
       it("GET - status 200 - filters articles by topic specified in the query", () => {
-        return request.get("/api/articles?topic=mitch").then(({ body }) => {
-          expect(body.articles.length).to.equal(11);
-          expect(
-            body.articles.every(article => {
-              return article.topic === "mitch";
-            })
-          ).to.be.true;
-        });
+        return request
+          .get("/api/articles?topic=mitch&&limit=20")
+          .then(({ body }) => {
+            expect(body.articles.length).to.equal(11);
+            expect(
+              body.articles.every(article => {
+                return article.topic === "mitch";
+              })
+            ).to.be.true;
+          });
       });
       it("GET - status 200 - sorts the articles by date (desc) as default", () => {
         return request.get("/api/articles").then(({ body }) => {
@@ -148,7 +150,7 @@ describe("/", () => {
       });
       it("GET - status 200 - can specify order of sort as ascending", () => {
         return request
-          .get("/api/articles?sort_by=votes&&order=asc")
+          .get("/api/articles?sort_by=votes&&order=asc&&limit=20")
           .then(({ body }) => {
             expect(body.articles[0].votes).to.equal(0);
             expect(body.articles[11].votes).to.equal(100);
@@ -169,6 +171,19 @@ describe("/", () => {
           );
         });
       });
+      //////
+      it("GET - status 200 - accepts a limit query which limits the number of responses", () => {
+        return request.get("/api/articles?limit=5").then(({ body }) => {
+          expect(body.articles.length).to.equal(5);
+        });
+      });
+      it("GET - status 200 - limit query defaults to 10 if not specified", () => {
+        return request.get("/api/articles").then(({ body }) => {
+          expect(body.articles.length).to.equal(10);
+        });
+      });
+
+      ////
       it("GET - status 404 - returns message 'Not an author' for the query of a username that is not in the database", () => {
         return request
           .get("/api/articles?author=notanauthor")
