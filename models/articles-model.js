@@ -1,5 +1,6 @@
 const connection = require("../db/connection");
 const { makePOSTCommentSuitable } = require("../utils/manipulate-data");
+const { doesTopicExists } = require("../controllers/articles-controller");
 
 exports.doesTopicExist = ({ topic }) => {
   if (topic !== undefined) {
@@ -47,13 +48,57 @@ exports.fetchAllArticles = ({ author, topic, sort_by, order, limit, p }) => {
 };
 
 exports.insertNewArticle = body => {
-  return connection("articles")
-    .insert(body)
-    .returning("*")
-    .then(([article]) => {
-      article.comment_count = 0;
-      return { article };
-    });
+  const validKeys = ["username", "title", "topic", "body"];
+  let notValid = false;
+  validKeys.forEach(element => {
+    if (
+      !Object.keys(body).includes(element) ||
+      typeof body[element] !== "string"
+    )
+      notValid = true;
+  });
+  if (notValid)
+    return Promise.reject({ status: 400, msg: "Not valid POST body" });
+  else {
+    return connection
+      .select("username")
+      .from("users")
+      .where("username", "=", body.username)
+      .then(result => {
+        if (result.length === 0)
+          return Promise.reject({
+            status: 404,
+            msg: "Username not found"
+          });
+        return result;
+      })
+      .then(() => {
+        return connection
+          .select("slug")
+          .from("topics")
+          .where("slug", "=", body.topic)
+          .then(result => {
+            return result;
+          });
+      })
+      .then(result => {
+        if (result.length === 0)
+          return Promise.reject({
+            status: 404,
+            msg: "Topic not found"
+          });
+        else {
+          const correctlyFormattedArticleBody = makePOSTCommentSuitable(body);
+          return connection("articles")
+            .insert(correctlyFormattedArticleBody)
+            .returning("*");
+        }
+      })
+      .then(([article]) => {
+        article.comment_count = 0;
+        return { article };
+      });
+  }
 };
 
 exports.fetchArticleById = ({ article_id }) => {

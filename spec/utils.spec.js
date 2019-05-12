@@ -181,7 +181,7 @@ describe("makePOSTCommentSuitable()", () => {
   it("Does not mutate original object", () => {
     const input = { username: "rogersop" };
     const actual = makePOSTCommentSuitable(input);
-    const output = { author: "rogersop", article_id: undefined };
+    const output = { author: "rogersop" };
     expect(actual).to.eql(output);
     expect(input).to.not.equal(actual);
   });
@@ -204,6 +204,21 @@ describe("makePOSTCommentSuitable()", () => {
       author: "rogersop",
       body: "Hello, this is a comment",
       article_id: 1
+    });
+  });
+  it("Is also suitable for a POST method on articles", () => {
+    const input = {
+      username: "rogersop",
+      title: "Article Title",
+      topic: "mitch",
+      body: "Hello, this is an article body"
+    };
+    const actual = makePOSTCommentSuitable(input);
+    expect(actual).to.eql({
+      author: "rogersop",
+      title: "Article Title",
+      topic: "mitch",
+      body: "Hello, this is an article body"
     });
   });
 });

@@ -48,5 +48,7 @@ exports.swapOutAKey = (
 exports.makePOSTCommentSuitable = (object, article_id) => {
   if (!Object.keys(object).length) return {};
   const { username, ...restOfObject } = object;
-  return { author: username, ...restOfObject, article_id: article_id };
+  const result = { author: username, ...restOfObject };
+  if (article_id) result.article_id = article_id;
+  return result;
 };

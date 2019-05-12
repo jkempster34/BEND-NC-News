@@ -8,7 +8,7 @@ const connection = require("../db/connection");
 
 const request = supertest(app);
 
-describe.only("/", () => {
+describe("/", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
   describe("/*** route-not found", () => {
@@ -220,7 +220,7 @@ describe.only("/", () => {
       });
       it("POST - status 201 - returns the new article when passed a comment object", () => {
         const newArticle = {
-          author: "rogersop",
+          username: "rogersop",
           title: "Article Title",
           topic: "mitch",
           body: "Hello, this is an article body"
@@ -230,7 +230,6 @@ describe.only("/", () => {
           .send(newArticle)
           .expect(201)
           .then(({ body }) => {
-            console.log(body, "Joe");
             expect(body.article).to.contain.keys(
               "author",
               "title",
@@ -252,6 +251,67 @@ describe.only("/", () => {
             expect(body.article.comment_count).to.equal(0);
           });
       });
+      it("POST - status 400 - returns 'Not valid POST body' if request body does not have the correct keys", () => {
+        const invalidArticle = {
+          invalid: "rogersop",
+          alsoNotValid: "Article Title",
+          notValidEither: "mitch",
+          invalidBody: "Hello, this is an article body"
+        };
+        return request
+          .post("/api/articles/")
+          .send(invalidArticle)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Not valid POST body");
+          });
+      });
+      it("POST - status 400 - returns 'Not valid POST body' if POST body's key values are the incorrect type", () => {
+        const invalidArticle = {
+          username: "rogersop",
+          title: 2,
+          topic: "mitch",
+          body: 2
+        };
+        return request
+          .post("/api/articles/")
+          .send(invalidArticle)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Not valid POST body");
+          });
+      });
+      it("POST - status 404 - returns 'Username not found' if POST body is valid but user key is not a username", () => {
+        const validArticle = {
+          username: "notAUser",
+          title: "Article Title",
+          topic: "mitch",
+          body: "Hello, this is an article body"
+        };
+        return request
+          .post("/api/articles/")
+          .send(validArticle)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Username not found");
+          });
+      });
+      it("POST - status 404 - returns 'Topic not found' if POST body is valid but topic key is not a topic", () => {
+        const validArticle = {
+          username: "rogersop",
+          title: "Article Title",
+          topic: "notATopic",
+          body: "Hello, this is an article body"
+        };
+        return request
+          .post("/api/articles/")
+          .send(validArticle)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Topic not found");
+          });
+      });
+
       describe("/articles/:article_id", () => {
         it("PUT / POST / DELETE on /api/articles/ - status 405 - method not found", () => {
           return request
