@@ -152,8 +152,12 @@ exports.fetchCommentsByArticleById = (
       sort_by || "created_at",
       order === "asc" || order === "desc" ? order : "desc"
     )
-    .limit(limit || 10)
-    .offset((p - 1) * limit || 0);
+    .then(comments => {
+      return comments.slice(
+        ((p || 1) - 1) * (limit || 10),
+        (p || 1) * (limit || 10)
+      );
+    });
 };
 
 exports.insertNewCommentByArticleId = (body, { article_id }) => {
