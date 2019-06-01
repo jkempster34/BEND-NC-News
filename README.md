@@ -104,7 +104,7 @@ npm run migrate-latest
 Run the app on http://localhost:9090 using nodemon which automatically restarts the application when file changes in the directory are detected:
 
 ```js
-npm run start
+npm run dev
 ```
 
 A http GET request to http://localhost:9090/api returns a JSON listing all the available endpoints on the API including their request methods, a description, any queries, and an example response.
@@ -146,7 +146,6 @@ it("GET - status:200 - returns a JSON describing all the available endpoints on 
 - [Mocha](https://mochajs.org/)
 - [SuperTest](https://github.com/visionmedia/supertest)
 - [Nodemon](https://nodemon.io/)
-- [generator-knexpress](https://github.com/AnthonyMedina/generator-knexpress)
 
 ## Authors
 
